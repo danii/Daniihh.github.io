@@ -504,5 +504,6 @@ class BlocklyBlockBuilder {
 }
 
 let downloadTools = () => open("/data/tools.zip");
+let toGithub = () => open("https://github.com/Daniihh/Daniihh.github.io");
 
 BlocklyBlockBuilder.onScriptLoad();
