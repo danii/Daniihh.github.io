@@ -1,0 +1,138 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+
+    margin: 0;
+    overflow: hidden;
+
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.pane, .window {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.window {
+    flex-direction: column;
+}
+
+.pane {
+    height: 50%;
+}
+
+.item {
+    width: 100%;
+    height: 100%;
+}
+
+.hud, .hud * {
+    z-index: 5;
+}
+
+.hud-background {
+    visibility: hidden;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    
+    background-color: #22222277;
+    opacity: 0;
+
+    transition: visibility 0s 1s, opacity 500ms;
+}
+
+.hud-display {
+    visibility: hidden;
+    position: absolute;
+    top: -10%;
+    left: 10%;
+    z-index: 6;
+
+    width: 80%;
+    padding: 1%;
+
+    font-size: 1.2em;
+    color: #dd2222;
+    border-radius: 5px;
+    background-color: #DDDDDD;
+    opacity: 0;
+    
+    transition: visibility 0s 1s, opacity 0.5s, top 0.5s;
+}
+
+.shown .hud-display {
+    visibility: visible;
+    top: 5%;
+    opacity: 1;
+
+    transition: visibility 0s 0s, opacity 0.5s, top cubic-bezier(0.45, 0.67, 0.45, 1.33) 0.5s;
+}
+
+.shown .hud-background {
+    visibility: visible;
+    opacity: 1;
+
+    transition: visibility 0s 0s, opacity 500ms;
+}
+
+.right {
+    float: right;
+}
+
+.popout {
+    z-index: 7;
+}
+
+.hide {
+    opacity: 0.1 !important;
+}
+
+#right {
+    width: 75%;
+}
+
+#code-options {
+    width: 100%;
+    height: 30px;
+    padding: 5px;
+    
+    vertical-align: middle;
+    line-height: 20px;
+    background: #DDDDDD;
+}
+
+#logos {
+    pointer-events: none;
+    position: absolute;
+    z-index: 71;
+    right: 0;
+    top: 0;
+
+    transition-property: opacity;
+    transition-duration: 250ms;
+}
+
+#logos > * {
+    max-height: 100px;
+}
+
+/*
+    TEMPORARY
+*/
+#code-options {
+    z-index: 8;
+    position: absolute;
+    visibility: hidden;
+}
+
+#code-options .right {
+    visibility: visible;
+}

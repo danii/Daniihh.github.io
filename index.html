@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Blockly Block Builder</title>
+        <meta charset="UTF-8"/>
+        <meta name="description" content="Build your own Blockly blocks easily! You shouldn't have to know how it works.">
+        <meta name="author" content="Daniel Conley">
+
+        <!-- Oh boy I sure wish HTML supported more elements that are self closing. -->
+        <script src="blockly/blockly_uncompressed.js"></script>
+        <script src="blockly/msg/js/en.js"></script>
+        <script src="ace/ace.js"></script>
+        <script src="javascript-compressed/tools.js"></script>
+        <script src="javascript/block_tools.js"></script>
+        <script src="javascript/blockly_block_builder.js"></script>
+        <script src="stacktrace-parser/stack-trace-parser.js"></script>
+
+        <link rel="stylesheet" href="block_builder.css"/>
+    </head>
+    <body onload="BlocklyBlockBuilder.onPageLoad()">
+        <div id="logos">
+            <img src="data/logo_built_on_blockly.svg"/>
+        </div>
+        <div class="window">
+            <div id="editor-workspace" class="blockly-workspace item"></div>
+        </div>
+        <div id="right" class="window">
+            <div class="horitontal-grip closed-right-grip"></div>
+            <div class="pane popout">
+                <div id="preview-workspace" class="blockly-workspace item"></div>
+            </div>
+            <div class="pane">
+                <div id="code-hud" class="hud">
+                    <div class="hud-background"></div>
+                    <div class="hud-display">Hahaha you'll never see this! >:3</div>
+                </div>
+                <div id="code-options">
+                    Language:
+                    <select>
+                        <option value="TS" disabled>TypeScript</option>
+                        <option value="JS">JavaScript</option>
+                        <option value="JSON" disabled>JSON</option>
+                    </select>
+                    &nbsp;
+                    Method:
+                    <select>
+                        <option value="blockToolsBuilder">BlockTools Builder</option>
+                        <option value="blocklyDirect" disabled>Blockly Direct</option>
+                        <option value="blocklyJSON" disabled>Blockly JSON</option>
+                    </select>
+
+                    ⌨:
+                    <select>
+                        <option value="shown">🤓</option>
+                        <option value="used">😎</option>
+                    </select>
+                    <span class="right">
+                        <button onclick="downloadTools()">Download Tools</button>
+                    </span>
+                </div>
+                <div id="code-output" class="code-textarea item"></div>
+            </div>
+        </div>
+    </body>
+</html>

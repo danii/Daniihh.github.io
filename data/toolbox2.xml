@@ -1,0 +1,30 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<xml>
+    <category name="Entities">
+        <block type="builder_entity_block">
+            <value name="name">
+                <block type="builder_value_text">
+                    <field name="value">block_name</field>
+                </block>
+            </value>
+            <value name="style">
+                <shadow type="builder_value_style" editable="false"/>
+            </value>
+            <value name="hue">
+                <shadow type="builder_value_hue" editable="false"/>
+            </value>
+        </block>
+    </category>
+
+    <category name="Types" custom="TYPES"/>
+
+    <sep/>
+
+    <category name="Properties">
+        <block type="builder_input_value"/>
+
+        <category name="">
+
+        </category>
+    </category>
+</xml>

@@ -1,0 +1,123 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<!--
+    This file contains the contents of the editors toolbox.
+-->
+<xml>
+    <!--
+        All categories should have a seperation of 8 px between each block!
+        <sep gap="8"/>
+    -->
+
+    <category name="Entities">
+        <block type="builder_entity_block">
+            <value name="name">
+                <block type="builder_value_text">
+                    <field name="value">block_name</field>
+                </block>
+            </value>
+            <value name="style">
+                <shadow type="builder_value_style" editable="false"/>
+            </value>
+            <value name="hue">
+                <shadow type="builder_value_hue" editable="false"/>
+            </value>
+        </block>
+    </category>
+
+    <category name="Inputs">
+        <block type="builder_text">
+            <value name="content">
+                <block type="builder_value_text"/>
+            </value>
+        </block>
+        <sep gap="32"/>
+        <label text="All blocks directly below, whether explicit or implicit, create a new line."/>
+        <block type="builder_input_dummy"/>
+        <sep gap="8"/>
+        <block type="builder_input_value">
+            <value name="name">
+                <block type="builder_value_text">
+                    <field name="value">input_name</field>
+                </block>
+            </value>
+            <value name="type">
+                <shadow type="builder_type" editable="false"/>
+            </value>
+            <value name="align">
+                <shadow type="builder_value_alignment" editable="false"/>
+            </value>
+        </block>
+        <sep gap="8"/>
+        <block type="builder_input_statement">
+            <value name="name">
+                <block type="builder_value_text">
+                    <field name="value">input_name</field>
+                </block>
+            </value>
+            <value name="type">
+                <shadow type="builder_type" editable="false"/>
+            </value>
+            <value name="align">
+                <shadow type="builder_value_alignment" editable="false"/>
+            </value>
+        </block>
+        <sep gap="32"/>
+        <label text="Excluding the blocks below here."/>
+        <block type="builder_connection_output">
+            <value name="type">
+                <shadow type="builder_type" editable="false"/>
+            </value>
+        </block>
+        <sep gap="8"/>
+        <block type="builder_connection_preceding">
+            <value name="type">
+                <shadow type="builder_type" editable="false"/>
+            </value>
+        </block>
+        <sep gap="8"/>
+        <block type="builder_connection_succeeding">
+            <value name="type">
+                <shadow type="builder_type" editable="false"/>
+            </value>
+        </block>
+        <sep gap="8"/>
+        <block type="builder_connection_both">
+            <value name="preceding">
+                <shadow type="builder_type" editable="false"/>
+            </value>
+            <value name="succeeding">
+                <shadow type="builder_type" editable="false"/>
+            </value>
+        </block>
+    </category>
+
+    <category name="Fields">
+        <block type="builder_field_text">
+            <value name="name">
+                <block type="builder_value_text">
+                    <field name="value">field_name</field>
+                </block>
+            </value>
+        </block>
+        <!--
+            <sep gap="8"/>
+            <block type="builder_field_number">
+                <value name="name">
+                    <block type="builder_value_text">
+                        <field name="value">field_name</field>
+                    </block>
+                </value>
+            </block>
+        -->
+    </category>
+
+    <category name="Values">
+        <block type="builder_value_hue"/>
+        <sep gap="8"/>
+        <block type="builder_value_style"/>
+        <sep gap="8"/>
+        <block type="builder_value_alignment"/>
+    </category>
+
+    <category name="Types" custom="TYPES"/>
+</xml>
