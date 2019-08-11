@@ -17,7 +17,6 @@ class MissingNameError extends AdvancedError {
   public readonly type: Locations;
   
   constructor(location: Locations) {
-    console.log(name);
     super(`Missing ${location} name.`);
     this.type = location;
   }
@@ -44,7 +43,6 @@ let generators: {
       let inputs: string[] = [];
       let fields: string[] = [];
 
-      console.log(map.content);
       type Content = {content?: (string | Object)[], input?: Object};
       let contentReducer = (prev: Content, cur: string | any, skip) => {
         if (prev.input != undefined) return skip;
@@ -61,7 +59,6 @@ let generators: {
         return prev;
       };
       let content = (map.content as (string | Object)[]).reduceSkip(contentReducer, {});
-      console.log(content);
 
       code.append("new BlockTools.Builder(", [map.name ? `"${map.name.escape()}"` : "", `"built_${map.id}"`], ")");
 
@@ -370,33 +367,8 @@ class BlocklyBlockBuilder {
     });
 
     this.types.register(this.blocklyEditor);
-    this.blocklyEditor.addChangeListener(this.eventHandler);
-
-    let hov = document.getElementById("logos");
-
-    document.addEventListener("pointermove", ({clientX, clientY}) => {
-      let {left, right, top, bottom} = hov.getBoundingClientRect();
-      let condition = left < clientX && clientX < right && top < clientY && clientY < bottom;
-
-      let workspace = this.blocklyPreview;
-      let workspaceBounding = workspace.getParentSvg().getBoundingClientRect();
-      let intersectionBounding = document.getElementById("logos").getBoundingClientRect();
-      let intersection = new goog.math.Rect(intersectionBounding.left, intersectionBounding.top, intersectionBounding.width, intersectionBounding.height);
-      let workspaceScrollOffset = new goog.math.Coordinate(workspace.scrollX, workspace.scrollY);
-      let workspacePositionOffset = new goog.math.Coordinate(workspaceBounding.left, workspaceBounding.top);
-      let blocks = workspace.getAllBlocks() as Blockly.BlockSvg[];
-      condition = blocks.some((block) => {
-        let {topLeft: {y: top, x: left}, bottomRight: {y: bottom, x: right}} = block.getBoundingRectangle();
-        let bounding = new goog.math.Rect(left * 1.5, top * 1.5, (right - left) * 1.5, (bottom - top) * 1.5);
-        bounding.translate(workspaceScrollOffset);
-        bounding.translate(workspacePositionOffset);
-        //console.log(bounding);
-        return intersection.intersects(bounding);
-      }) || condition;
-
-      if (condition) hov.classList.add("hide");
-      else hov.classList.remove("hide");
-    });
+    this.blocklyEditor.addChangeListener(this.editorEventHandler);
+    document.addEventListener("pointermove", this.inputEventHandler);
   }
 
   public static generateCode() {
@@ -496,10 +468,49 @@ class BlocklyBlockBuilder {
     });
   }
 
-  public static eventHandler(event: Blockly.Events.Abstract) {
+  public static editorEventHandler(this: undefined, event: Blockly.Events.Abstract) {
     if (!(event instanceof Blockly.Events.Ui)) {
       BlocklyBlockBuilder.generateCode();
+    } else if (event instanceof Blockly.Events.Ui && event.element == "click") {
+      let target = BlocklyBlockBuilder.blocklyEditor.getBlockById(event.blockId);
+
+      let recursiveFill = (oldBlock: Blockly.Block) => {
+        let conBlock = oldBlock.getPreviousBlock() || oldBlock.getRootBlock();
+        let newBlock = BlocklyBlockBuilder.blocklyEditor.newBlock(oldBlock.type) as Blockly.BlockSvg;
+        newBlock.initSvg();
+        newBlock.render();
+        
+        if (conBlock.isShadow()) recursiveFill(conBlock);
+        if (oldBlock.getPreviousBlock()) conBlock.nextConnection.connect(newBlock.previousConnection);
+        else oldBlock.outputConnection.targetConnection.connect(newBlock.outputConnection);
+      };
+
+      if (target && target.isShadow()) recursiveFill(target);
     }
+  }
+
+  public static inputEventHandler(this: Document, {clientX: mouseX, clientY: mouseY}: PointerEvent) {
+    let hov = document.getElementById("logos");
+    let {left, right, top, bottom} = hov.getBoundingClientRect();
+    let condition = left < mouseX && mouseX < right && top < mouseY && mouseY < bottom;
+
+    let workspace = BlocklyBlockBuilder.blocklyPreview;
+    let workspaceBounding = workspace.getParentSvg().getBoundingClientRect();
+    let intersectionBounding = document.getElementById("logos").getBoundingClientRect();
+    let intersection = new goog.math.Rect(intersectionBounding.left, intersectionBounding.top, intersectionBounding.width, intersectionBounding.height);
+    let workspaceScrollOffset = new goog.math.Coordinate(workspace.scrollX, workspace.scrollY);
+    let workspacePositionOffset = new goog.math.Coordinate(workspaceBounding.left, workspaceBounding.top);
+    let blocks = workspace.getAllBlocks() as Blockly.BlockSvg[];
+    condition = condition || blocks.some((block) => {
+      let {topLeft: {y: top, x: left}, bottomRight: {y: bottom, x: right}} = block.getBoundingRectangle();
+      let bounding = new goog.math.Rect(left * 1.5, top * 1.5, (right - left) * 1.5, (bottom - top) * 1.5);
+      bounding.translate(workspaceScrollOffset);
+      bounding.translate(workspacePositionOffset);
+      return intersection.intersects(bounding);
+    });
+
+    if (condition) hov.classList.add("hide");
+    else hov.classList.remove("hide");
   }
 }
 

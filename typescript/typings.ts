@@ -59,6 +59,7 @@ declare namespace Blockly {
     getInputTargetBlock(name: string): Blockly.Block;
     getNextBlock(): Blockly.Block;
     getPreviousBlock(): Blockly.Block;
+    getRootBlock(): Blockly.Block;
     isInsertionMarker(): boolean;
     isMoveable(): boolean;
     isShadow(): boolean;
@@ -79,18 +80,31 @@ declare namespace Blockly {
   }
 
   class Connection {
+    targetConnection: Blockly.Connection;
+
+    constructor(source: Blockly.Block, type: number);
+    connect(otherConnection: Blockly.Connection): void;
     disconnect(): void;
     isConnected(): boolean;
   }
 
   namespace Events {
-    class Abstract {}
+    class Abstract {
+      group: string;
+      workspaceId: string;
+      recordUndo: boolean;
+    }
 
     class BlockBase extends Blockly.Events.Abstract {}
 
     class Move extends Blockly.Events.BlockBase {}
 
-    class Ui extends Blockly.Events.Abstract {}
+    class Ui extends Blockly.Events.Abstract {
+      blockId: string;
+      element: string;
+      oldValue: any;
+      newValue: any;
+    }
   }
 
   class Field {
@@ -119,11 +133,12 @@ declare namespace Blockly {
     refreshSelection(): void;
   }
 
-  abstract class Workspace {
+  class Workspace {
     options: Blockly.Options;
-
+    
     addChangeListener(func: (event: Blockly.Events.Abstract) => void): Function;
     getAllBlocks(): Blockly.Block[];
+    getBlockById(id: string): Blockly.Block;
   }
 
   class WorkspaceSvg extends Blockly.Workspace {
