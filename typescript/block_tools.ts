@@ -321,6 +321,9 @@ namespace BlockTools {
     export class GeneratorError extends AdvancedError {};
   }
 
+  /**
+   * @deprecated Unnecessary class.
+   */
   export class Code {
     private shown = "";
     private used = "";
@@ -390,22 +393,8 @@ namespace BlockTools {
     private table: Of<string> = {};
   
     /**
-     * Makes this function mine by binding this permanently to it.
-     * 
-     * This function is mine.
-     * And this triagonal sign.
-     * The blue balloon, the month of June,
-     * their mine mine mine mine mine!
-     * 
-     * @param func Function to bind this too.
-     */
-    private mine(func: Function) {
-      return func.bind(this);
-    }
-  
-    /**
-     * Like .mine, but when you actually want the value that this was assigned
-     * too.
+     * Like the @bounded decorator, but when you actually want the value that
+     * this was assigned too.
      * 
      * @param func Function to use this with, old value passed as first argument
      *   followed by the rest.
@@ -476,7 +465,8 @@ namespace BlockTools {
       return [this.updateDropdown, this.validateDropdown];
     }
 
-    public buildToolbox = this.mine(function(this: Types) {
+    @bounded
+    public buildToolbox(this: Types) {
       let obtainButton = (text: string, key: string) =>
           obtainXml('<button text="' + text + '" callbackKey="' + key + '"/>');
   
@@ -493,9 +483,10 @@ namespace BlockTools {
         list.push(obtainXml([xmlStart, type, xmlEnd].join("")));
       }
       return list;
-    });
-  
-    public createType = this.mine(function(this: Types, button?: Blockly.FlyoutButton): string | void {
+    }
+    
+    @bounded
+    public createType(this: Types, button?: Blockly.FlyoutButton): string | void {
       let name = prompt("Enter the name of the type to create...");
       if ([null, ""].includes(name)) return;
   
@@ -505,9 +496,10 @@ namespace BlockTools {
   
       if (button) button.getTargetWorkspace().getToolbox().refreshSelection();
       return position.toString();
-    });
+    }
   
-    public deleteType = this.mine(function(this: Types, argument: Blockly.FlyoutButton | Blockly.Workspace, item?: string, confirmm?: boolean): boolean {
+    @bounded
+    public deleteType(this: Types, argument: Blockly.FlyoutButton | Blockly.Workspace, item?: string, confirmm?: boolean): boolean {
       if (argument instanceof Blockly.Workspace) {
         if (!Object.keys(this.table).includes(item)) return false;
   
@@ -537,7 +529,7 @@ namespace BlockTools {
       }
       alert('No type exists with the name "' + item + '".');
       return false;
-    });
+    }
   
     /**
      * Registers all the button callbacks and category callbacks required

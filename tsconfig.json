@@ -1,7 +1,19 @@
 {
   "compilerOptions": {
+    //Targets
     "target": "es6",
     "lib": ["es2019", "dom"],
-    "outDir": "./javascript"
-  }
+
+    //Output
+    "outDir": "./javascript",
+
+    //Experimental
+    "jsx": "preserve",
+    "experimentalDecorators": true
+  },
+
+  //Input
+  "include": [
+    "./typescript/*"
+  ]
 }

@@ -1,3 +1,12 @@
+/**
+ * Danii's Tools
+ *
+ * This is a set of tools that I add to and use daily, it adds functionality to
+ * objects and such that I feel should be implemented in Javascript.
+ *
+ * ©\2019 Daniel Conley ...not, but maybe one day haha.
+ * (Would be under a public liscense obv.)
+ */
 /*
   Definitions
 */
@@ -5,9 +14,7 @@ let defineProperties = (target, values) => {
     let reducer = (map, key) => (Object.assign({}, map, { [key]: Object.assign({}, Object.getOwnPropertyDescriptor(values, key), { "enumerable": false }) }));
     Object.defineProperties(target, Object.keys(values).reduce(reducer, {}));
 };
-defineProperties(Symbol, {
-    "skip": Symbol("skip")
-});
+//}
 defineProperties(Array.prototype, {
     get last() {
         return this[Math.max(0, this.length - 1)];
@@ -101,15 +108,77 @@ defineProperties(String.prototype, {
     capitalize() {
         return this.substr(0, 1).toUpperCase() + this.substr(1);
     },
-    escape() {
+    escape(nonSpecials = true) {
         let charArray = this.split("");
-        charArray = charArray.map((char) => ['"', "'", "\\"].includes(char) ? "\\" + char : char);
+        if (nonSpecials)
+            charArray = charArray.map((char) => ['"', "'", "\\"].includes(char) ? "\\" + char : char);
+        charArray = charArray.map((char) => ["\n", "\r", "\t"].includes(char) ? "\\" + { "\n": "n", "\r": "r", "\t": "t" }[char] : char);
         return charArray.join("");
     },
     toTitleCase() {
         return this.split(" ").map((word) => word.toLowerCase().capitalize()).join(" ");
+    },
+    interpolate(values) {
+        let match;
+        let bldr = this.split("");
+        let vars = `let [${Object.keys(values)}] = [${Object.keys(values).map((key) => "values." + key)}]`;
+        while ((match = bldr.indexOf("$", ++match)) != -1) {
+            if (bldr[match++ - 1] == "\\" || bldr[match++] != "{")
+                continue;
+            let bracks = 1;
+            let end = match;
+            while ((bldr[end] == "}" ? bracks-- : bldr[end] == "{" ? bracks++ : bracks) > 0)
+                end++;
+            end--;
+            let code = bldr.slice(match--, end).join("");
+            bldr.splice(--match, end - --match, `${eval(`${vars}; (${code.escape(false)})`)}`);
+        }
+        return bldr.join("");
     }
 });
+defineProperties(Symbol, {
+    "skip": Symbol("skip")
+});
+/**
+ * Ensures that the mentioned method's this value will always be that of the
+ * object it belongs to.
+ *
+ * @param proto Prototype of the object.
+ * @param key Name of the function.
+ * @param descriptor Function's descriptor.
+ */
+function bounded(proto, key, descriptor) {
+    let value = descriptor.value;
+    delete descriptor.writable;
+    delete descriptor.value;
+    descriptor.get = function () {
+        return value.bind(this);
+    };
+    return descriptor;
+}
+/**
+ *
+ *
+ * This decorator currently doesn't work in TypeScript due to TypeScript not
+ * allowing decorators to change the type of the underlying function.
+ *
+ * @param proto
+ * @param key
+ * @param descriptor
+ * @deprecated This function doesn't work in TypeScript.
+ */
+function withSelf(proto, key, descriptor) {
+    let value = descriptor.value;
+    delete descriptor.writable;
+    delete descriptor.value;
+    descriptor.get = function () {
+        let thisHere = this;
+        return function (...items) {
+            return value.call(thisHere, this, ...items);
+        };
+    };
+    return descriptor;
+}
 /*
   Errors
 */
@@ -146,6 +215,7 @@ class AdvancedError extends Error {
         let hidden = (common) => {
             return {
                 get() {
+                    console.log(new Error().stack);
                     if (AdvancedError.parseStack(new Error().stack).length > 1) {
                         return common;
                     }
@@ -317,6 +387,16 @@ class AdvancedError extends Error {
     }
 }
 AdvancedError.UNKNOWN_FUNCTION = '<unknown>';
+class ArbitraryDataError extends AdvancedError {
+    constructor(data, message, suppressed) {
+        super(message, suppressed);
+        this.data = data;
+    }
+    getData() {
+        return this.data;
+    }
+}
 let AdvancedTypeError = AdvancedError.extend("AdvancedTypeError");
 let NullError = AdvancedTypeError.extend("NullError");
 let ArgumentsError = AdvancedError.extend("ArgumentsError");
+//export {AdvancedError};

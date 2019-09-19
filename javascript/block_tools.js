@@ -1,3 +1,9 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var BlockTools;
 (function (BlockTools) {
     /*
@@ -250,6 +256,9 @@ var BlockTools;
         CodeGenerator.GeneratorError = GeneratorError;
         ;
     })(CodeGenerator = BlockTools.CodeGenerator || (BlockTools.CodeGenerator = {}));
+    /**
+     * @deprecated Unnecessary class.
+     */
     class Code {
         constructor() {
             this.shown = "";
@@ -367,80 +376,10 @@ var BlockTools;
                 let result = switchObj[option] ? switchObj[option]() : undefined;
                 return result;
             });
-            this.buildToolbox = this.mine(function () {
-                let obtainButton = (text, key) => BlockTools.obtainXml('<button text="' + text + '" callbackKey="' + key + '"/>');
-                let xmlStart = '<block type="builder_type"><field name="type">';
-                let xmlEnd = "</field></block>";
-                let list = [obtainButton("Create Type...", "createType")];
-                if (Object.keys(this.table).length != 0) {
-                    list.push(obtainButton("Delete Type...", "deleteType"));
-                }
-                list.push(BlockTools.obtainXml([xmlStart, "-1", xmlEnd].join("")));
-                for (let type in this.table) {
-                    list.push(BlockTools.obtainXml([xmlStart, type, xmlEnd].join("")));
-                }
-                return list;
-            });
-            this.createType = this.mine(function (button) {
-                let name = prompt("Enter the name of the type to create...");
-                if ([null, ""].includes(name))
-                    return;
-                if (Object.values(this.table).includes(name))
-                    return alert('A type already exists with the name "' + name + '".');
-                let position = Math.max(-1, ...Object.keys(this.table).map((int) => parseInt(int))) + 1;
-                this.table[position] = name;
-                if (button)
-                    button.getTargetWorkspace().getToolbox().refreshSelection();
-                return position.toString();
-            });
-            this.deleteType = this.mine(function (argument, item, confirmm) {
-                if (argument instanceof Blockly.Workspace) {
-                    if (!Object.keys(this.table).includes(item))
-                        return false;
-                    if (!confirmm) {
-                        confirmm = confirm('Are you sure you want to delete the type "' + this.table[item] + '"?');
-                        if (!confirmm)
-                            return false;
-                    }
-                    let [id] = Object.entries(this.table).find(([key]) => key == item);
-                    delete this.table[id];
-                    for (let block of argument.getAllBlocks()) {
-                        if (block.type != "builder_type")
-                            continue;
-                        if (block.getField("type").getValue() == id)
-                            block.dispose(false, true);
-                    }
-                    return true;
-                }
-                let recent = this.table[Math.max(...Object.keys(this.table).map((a) => parseInt(a)))];
-                item = prompt("Enter the name of the type to delete...", recent);
-                if ([null, ""].includes(item))
-                    return false;
-                item = Object.fromEntries(Object.entries(this.table).map((a) => a.reverse()))[item];
-                if (this.deleteType(argument.getTargetWorkspace(), item, true)) {
-                    argument.getTargetWorkspace().getToolbox().refreshSelection();
-                    return true;
-                }
-                alert('No type exists with the name "' + item + '".');
-                return false;
-            });
         }
         /**
-         * Makes this function mine by binding this permanently to it.
-         *
-         * This function is mine.
-         * And this triagonal sign.
-         * The blue balloon, the month of June,
-         * their mine mine mine mine mine!
-         *
-         * @param func Function to bind this too.
-         */
-        mine(func) {
-            return func.bind(this);
-        }
-        /**
-         * Like .mine, but when you actually want the value that this was assigned
-         * too.
+         * Like the @bounded decorator, but when you actually want the value that
+         * this was assigned too.
          *
          * @param func Function to use this with, old value passed as first argument
          *   followed by the rest.
@@ -466,6 +405,63 @@ var BlockTools;
         getConstructArgs() {
             return [this.updateDropdown, this.validateDropdown];
         }
+        buildToolbox() {
+            let obtainButton = (text, key) => BlockTools.obtainXml('<button text="' + text + '" callbackKey="' + key + '"/>');
+            let xmlStart = '<block type="builder_type"><field name="type">';
+            let xmlEnd = "</field></block>";
+            let list = [obtainButton("Create Type...", "createType")];
+            if (Object.keys(this.table).length != 0) {
+                list.push(obtainButton("Delete Type...", "deleteType"));
+            }
+            list.push(BlockTools.obtainXml([xmlStart, "-1", xmlEnd].join("")));
+            for (let type in this.table) {
+                list.push(BlockTools.obtainXml([xmlStart, type, xmlEnd].join("")));
+            }
+            return list;
+        }
+        createType(button) {
+            let name = prompt("Enter the name of the type to create...");
+            if ([null, ""].includes(name))
+                return;
+            if (Object.values(this.table).includes(name))
+                return alert('A type already exists with the name "' + name + '".');
+            let position = Math.max(-1, ...Object.keys(this.table).map((int) => parseInt(int))) + 1;
+            this.table[position] = name;
+            if (button)
+                button.getTargetWorkspace().getToolbox().refreshSelection();
+            return position.toString();
+        }
+        deleteType(argument, item, confirmm) {
+            if (argument instanceof Blockly.Workspace) {
+                if (!Object.keys(this.table).includes(item))
+                    return false;
+                if (!confirmm) {
+                    confirmm = confirm('Are you sure you want to delete the type "' + this.table[item] + '"?');
+                    if (!confirmm)
+                        return false;
+                }
+                let [id] = Object.entries(this.table).find(([key]) => key == item);
+                delete this.table[id];
+                for (let block of argument.getAllBlocks()) {
+                    if (block.type != "builder_type")
+                        continue;
+                    if (block.getField("type").getValue() == id)
+                        block.dispose(false, true);
+                }
+                return true;
+            }
+            let recent = this.table[Math.max(...Object.keys(this.table).map((a) => parseInt(a)))];
+            item = prompt("Enter the name of the type to delete...", recent);
+            if ([null, ""].includes(item))
+                return false;
+            item = Object.fromEntries(Object.entries(this.table).map((a) => a.reverse()))[item];
+            if (this.deleteType(argument.getTargetWorkspace(), item, true)) {
+                argument.getTargetWorkspace().getToolbox().refreshSelection();
+                return true;
+            }
+            alert('No type exists with the name "' + item + '".');
+            return false;
+        }
         /**
          * Registers all the button callbacks and category callbacks required
          * effectively use this class.
@@ -487,6 +483,15 @@ var BlockTools;
             return value == "-1" ? null : this.table[value];
         }
     }
+    __decorate([
+        bounded
+    ], Types.prototype, "buildToolbox", null);
+    __decorate([
+        bounded
+    ], Types.prototype, "createType", null);
+    __decorate([
+        bounded
+    ], Types.prototype, "deleteType", null);
     BlockTools.Types = Types;
     class Builder {
         /**

@@ -1,3 +1,12 @@
+/**
+ * Danii's Tools
+ * 
+ * This is a set of tools that I add to and use daily, it adds functionality to
+ * objects and such that I feel should be implemented in Javascript.
+ * 
+ * ©\2019 Daniel Conley ...not, but maybe one day haha.
+ * (Would be under a public liscense obv.)
+ */
 
 /*
   Types
@@ -34,64 +43,97 @@ let defineProperties = <T>(target: T, values: Partial<T>) => {
   Object.defineProperties(target, Object.keys(values).reduce<PropertyDescriptorMap>(reducer, {}));
 }
 
-interface SymbolConstructor {
-  readonly skip: symbol;
-}
+//declare global {
+  interface Array<T> {
+    //New Getters / Setters
+    last: T;
+  
+    //New Functions
+  
+    /**
+     * Executes .flat and .crumble all in one go.
+     * 
+     * @see Array.prototype.flat
+     * @see Array.prototype.crumble
+     * @param depth The maximum recusrion depth.
+     * @returns Null, one element or the array with sub arrays concatinated.
+     */
+    crumbleFlat(depth?: number): null | T | T[];
+  
+    /**
+     * Returns null if nothing is in the array, or the one element in an array
+     * if the array only contains one value, otherwise the array itself if more
+     * than one elements are stored.
+     * 
+     * Can be thought of as trying to remove an array's brackets.
+     * 
+     * @returns Null, one element or the array itself.
+     */
+    crumble(): null | T | T[];
+  
+    reduceSkip<R = T>(callback: (previous: T | R, current: T, skip: symbol, index?: number, array?: T[]) => R | symbol): (T | R)[];
+    reduceSkip<R = T, I = T>(callback: (previous: R | I, current: T, skip: symbol, index?: number, array?: T[]) => R | symbol, initial?: I): (R | I)[];
+  
+    /**
+     * Reverses the elements in an array without changing itself.
+     * 
+     * @returns A new array with the values reversed.
+     */
+    softReverse(): T[];
+  
+    //Better Typed Functions
+    every<TH = any>(callback: Mapper<T, boolean, this, TH>, thisArg?: TH): boolean;
+    filter<TH = any>(callback: Mapper<T, boolean, this, TH>, thisArg?: TH): T[];
+    find<TH = any>(callback: Mapper<T, boolean, this, TH>, thisArg?: TH): T;
+    findIndex<TH = any>(callback: Mapper<T, boolean, this, TH>, thisArg?: TH): number;
+    forEach<TH = any>(callback: Consumer<T, this, TH>, thisArg?: TH): void;
+    map<R = void, TH = any>(callback: Mapper<T, R, this, TH>, thisArg?: TH): R[];
+    reduce<R = T>(callback: Reducer<T, R, this>): T | R;
+    reduce<R = T, I = T>(callback: Reducer<T, R, this, I>, initial: I): R | I;
+    reduceRight<R = T>(callback: Reducer<T, R, this>): T | R;
+    reduceRight<R = T, I = T>(callback: Reducer<T, R, this, I>, initial: I): R | T;
+    some<TH = any>(callback: Mapper<T, boolean, this, TH>, thisArg?: TH): boolean;
+  }
 
-defineProperties(Symbol, {
-  "skip": Symbol("skip")
-});
+  interface ObjectConstructor {
+    //New Functions
+    clone<T extends Object>(item: T): T;
+  
+    every<T, V, TH = any>(object: Of<V> & T, callback: Mapper<Entry<V>, boolean, T, TH>, thisArg?: TH): boolean;
+    filter<T, V, TH = any>(object: Of<V> & T, callback: Mapper<Entry<V>, boolean, T, TH>, thisArg?: TH): Of<V>;
+  
+    getType(item: any): string;
+    objectHasOwnProperty(object: any, property: Key): boolean;
+    objectHasProperty(object: any, property: Key): boolean;
+    
+    //Better Typed Functions
+    entries<T>(object: Of<T>): Entry<T>[];
+    fromEntries<T>(entries: Entry<T>[]): Of<T>;
+    getPrototypeOf<T>(constructor: T): Prototype<T>;
+    getPrototypeOf(constructor: any): any;
+  }
 
-interface Array<T> {
-  //New Getters / Setters
-  last: T;
+  interface String {
+    //New Functions
+    capitalize(): string;
+    escape(nonSpecials: boolean): string;
+    toTitleCase(): string;
 
-  //New Functions
+    /**
+     * Interpolates a string as if it was a template.
+     * It should be noted that templates execute code, and that has
+     * been emulated by this function.
+     * 
+     * @param str String to interpolate with.
+     * @param values The variables supplied.
+     */
+    interpolate(values: Of<any>);
+  }
 
-  /**
-   * Executes .flat and .crumble all in one go.
-   * 
-   * @see Array.prototype.flat
-   * @see Array.prototype.crumble
-   * @param depth The maximum recusrion depth.
-   * @returns Null, one element or the array with sub arrays concatinated.
-   */
-  crumbleFlat(depth?: number): null | T | T[];
-
-  /**
-   * Returns null if nothing is in the array, or the one element in an array
-   * if the array only contains one value, otherwise the array itself if more
-   * than one elements are stored.
-   * 
-   * Can be thought of as trying to remove an array's brackets.
-   * 
-   * @returns Null, one element or the array itself.
-   */
-  crumble(): null | T | T[];
-
-  reduceSkip<R = T>(callback: (previous: T | R, current: T, skip: symbol, index?: number, array?: T[]) => R | symbol): (T | R)[];
-  reduceSkip<R = T, I = T>(callback: (previous: R | I, current: T, skip: symbol, index?: number, array?: T[]) => R | symbol, initial?: I): (R | I)[];
-
-  /**
-   * Reverses the elements in an array without changing itself.
-   * 
-   * @returns A new array with the values reversed.
-   */
-  softReverse(): T[];
-
-  //Better Typed Functions
-  every<TH = any>(callback: Mapper<T, boolean, this, TH>, thisArg?: TH): boolean;
-  filter<TH = any>(callback: Mapper<T, boolean, this, TH>, thisArg?: TH): T[];
-  find<TH = any>(callback: Mapper<T, boolean, this, TH>, thisArg?: TH): T;
-  findIndex<TH = any>(callback: Mapper<T, boolean, this, TH>, thisArg?: TH): number;
-  forEach<TH = any>(callback: Consumer<T, this, TH>, thisArg?: TH): void;
-  map<R = void, TH = any>(callback: Mapper<T, R, this, TH>, thisArg?: TH): R[];
-  reduce<R = T>(callback: Reducer<T, R, this>): T | R;
-  reduce<R = T, I = T>(callback: Reducer<T, R, this, I>, initial: I): R | I;
-  reduceRight<R = T>(callback: Reducer<T, R, this>): T | R;
-  reduceRight<R = T, I = T>(callback: Reducer<T, R, this, I>, initial: I): R | T;
-  some<TH = any>(callback: Mapper<T, boolean, this, TH>, thisArg?: TH): boolean;
-}
+  interface SymbolConstructor {
+    readonly skip: symbol;
+  }
+//}
 
 defineProperties(Array.prototype, {
   get last(this: any[]) {
@@ -159,24 +201,6 @@ defineProperties(Array.prototype, {
   }
 } as Partial<any[]>);
 
-interface ObjectConstructor {
-  //New Functions
-  clone<T extends Object>(item: T): T;
-
-  every<T, V, TH = any>(object: Of<V> & T, callback: Mapper<Entry<V>, boolean, T, TH>, thisArg?: TH): boolean;
-  filter<T, V, TH = any>(object: Of<V> & T, callback: Mapper<Entry<V>, boolean, T, TH>, thisArg?: TH): Of<V>;
-
-  getType(item: any): string;
-  objectHasOwnProperty(object: any, property: Key): boolean;
-  objectHasProperty(object: any, property: Key): boolean;
-  
-  //Better Typed Functions
-  entries<T>(object: Of<T>): Entry<T>[];
-  fromEntries<T>(entries: Entry<T>[]): Of<T>;
-  getPrototypeOf<T>(constructor: T): Prototype<T>;
-  getPrototypeOf(constructor: any): any;
-}
-
 defineProperties(Object, {
   clone<T extends Object>(item: T): T {
     if (typeof item != "object") return item;
@@ -208,28 +232,87 @@ defineProperties(Object, {
   }
 });
 
-interface String {
-  //New Functions
-  capitalize(): string;
-  escape(): string;
-  toTitleCase(): string;
-}
-
 defineProperties(String.prototype, {
   capitalize() {
     return this.substr(0, 1).toUpperCase() + this.substr(1);
   },
 
-  escape() {
+  escape(nonSpecials: boolean = true) {
     let charArray = this.split("");
-    charArray = charArray.map((char) => ['"', "'", "\\"].includes(char) ? "\\" + char : char);
+    if (nonSpecials) charArray = charArray.map((char) => ['"', "'", "\\"].includes(char) ? "\\" + char : char)
+    charArray = charArray.map((char) => ["\n", "\r", "\t"].includes(char) ? "\\" + {"\n": "n", "\r": "r", "\t": "t"}[char] : char);
     return charArray.join("");
   },
 
   toTitleCase() {
     return this.split(" ").map((word) => word.toLowerCase().capitalize()).join(" ");
+  },
+
+  interpolate(this: string, values: Of<any>) {
+    let match: number;
+    let bldr = this.split("");
+    let vars = `let [${Object.keys(values)}] = [${Object.keys(values).map((key) => "values." + key)}]`;
+    while ((match = bldr.indexOf("$", ++match)) != -1) {
+      if (bldr[match++ - 1] == "\\" || bldr[match++] != "{") continue;
+      let bracks = 1;
+      let end = match;
+      while ((bldr[end] == "}" ? bracks-- : bldr[end] == "{" ? bracks++ : bracks) > 0) end++;
+      end--;
+      let code = bldr.slice(match--, end).join("");
+      bldr.splice(--match, end - --match, `${eval(`${vars}; (${code.escape(false)})`)}`);
+    }
+    return bldr.join("");
   }
 } as Partial<String>);
+
+defineProperties(Symbol, {
+  "skip": Symbol("skip")
+});
+
+
+/**
+ * Ensures that the mentioned method's this value will always be that of the
+ * object it belongs to.
+ * 
+ * @param proto Prototype of the object.
+ * @param key Name of the function.
+ * @param descriptor Function's descriptor.
+ */
+function bounded<Type extends (...a: any[]) => any>(proto: Object, key: string, descriptor: TypedPropertyDescriptor<Type>) {
+  let value = descriptor.value;
+  delete descriptor.writable;
+  delete descriptor.value;
+
+  descriptor.get = function() {
+    return value.bind(this) as Type;
+  }
+  return descriptor;
+}
+
+/**
+ * 
+ * 
+ * This decorator currently doesn't work in TypeScript due to TypeScript not
+ * allowing decorators to change the type of the underlying function.
+ * 
+ * @param proto 
+ * @param key 
+ * @param descriptor 
+ * @deprecated This function doesn't work in TypeScript.
+ */
+function withSelf(proto, key, descriptor) {
+  let value = descriptor.value;
+  delete descriptor.writable;
+  delete descriptor.value;
+
+  descriptor.get = function() {
+    let thisHere = this;
+    return function(...items) {
+      return value.call(thisHere, this, ...items);
+    }
+  }
+  return descriptor;
+}
 
 
 
@@ -469,6 +552,7 @@ class AdvancedError extends Error {
     let hidden = <C>(common: C) => {
       return {
         get(this: AdvancedError): string | C {
+          console.log(new Error().stack);
           if (AdvancedError.parseStack(new Error().stack).length > 1) {
             return common;
           } else {
@@ -491,7 +575,22 @@ class AdvancedError extends Error {
   }
 }
 
+class ArbitraryDataError<Type> extends AdvancedError {
+  private readonly data: Type;
+
+  constructor(data: Type, message: string | Error, suppressed?: Error) {
+    super(message, suppressed);
+    this.data = data;
+  }
+
+  public getData() {
+    return this.data;
+  }
+}
+
 let AdvancedTypeError = AdvancedError.extend("AdvancedTypeError");
 let NullError = AdvancedTypeError.extend("NullError");
 
 let ArgumentsError = AdvancedError.extend("ArgumentsError");
+
+//export {AdvancedError};
