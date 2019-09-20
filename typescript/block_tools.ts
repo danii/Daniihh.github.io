@@ -78,7 +78,7 @@ namespace BlockTools {
    * @param xml Text to convert to XML.
    * @returns XML Element.
    */
-  export let createXml = (xml: string) => Blockly.Xml.textToDom("<xml>" + xml + "</xml>");
+  export const createXml = (xml: string) => Blockly.Xml.textToDom("<xml>" + xml + "</xml>");
 
   /**
    * Wraps the given text with xml tags and returns it all as a list of XML
@@ -87,7 +87,7 @@ namespace BlockTools {
    * @param xml Text to convert to XML.
    * @returns Array of XML elements.
    */
-  export let obtainXml = (xml: string) => Array.from(createXml(xml).childNodes).crumble();
+  export const obtainXml = (xml: string) => Array.from(createXml(xml).childNodes).crumble();
 
   /**
    * Maps out a set of blocks using a mapper.
@@ -96,7 +96,7 @@ namespace BlockTools {
    * @param block The block at the top of the group to start mapping from.
    * @returns A map of the blocks specified by the mapper.
    */
-  export let map = (() => {
+  export const map = (() => {
     let makeThis = (block: Blockly.Block, scope: Object, diagram: Object): Map.This => ({
       "block": block,
       "scope": scope,
@@ -220,7 +220,7 @@ namespace BlockTools {
    * @param string The path to the field from this block.
    * @returns The value of the field, parsed into a proper type.
    */
-  export let getValue = (block: Blockly.Block, path: string): string | number | boolean => {
+  export const getValue = (block: Blockly.Block, path: string): string | number | boolean => {
     let parse = (item: string): string | number | boolean =>
       ({"false": false, "true": true}[item.toLowerCase()] != undefined ?
       {"false": false, "true": true}[item.toLowerCase()] :
@@ -393,7 +393,7 @@ namespace BlockTools {
     private table: Of<string> = {};
   
     /**
-     * Like the @bounded decorator, but when you actually want the value that
+     * Like the @bound decorator, but when you actually want the value that
      * this was assigned too.
      * 
      * @param func Function to use this with, old value passed as first argument
@@ -465,7 +465,7 @@ namespace BlockTools {
       return [this.updateDropdown, this.validateDropdown];
     }
 
-    @bounded
+    @bound
     public buildToolbox(this: Types) {
       let obtainButton = (text: string, key: string) =>
           obtainXml('<button text="' + text + '" callbackKey="' + key + '"/>');
@@ -485,7 +485,7 @@ namespace BlockTools {
       return list;
     }
     
-    @bounded
+    @bound
     public createType(this: Types, button?: Blockly.FlyoutButton): string | void {
       let name = prompt("Enter the name of the type to create...");
       if ([null, ""].includes(name)) return;
@@ -498,7 +498,7 @@ namespace BlockTools {
       return position.toString();
     }
   
-    @bounded
+    @bound
     public deleteType(this: Types, argument: Blockly.FlyoutButton | Blockly.Workspace, item?: string, confirmm?: boolean): boolean {
       if (argument instanceof Blockly.Workspace) {
         if (!Object.keys(this.table).includes(item)) return false;

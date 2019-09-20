@@ -278,7 +278,9 @@ defineProperties(Symbol, {
  * @param key Name of the function.
  * @param descriptor Function's descriptor.
  */
-function bounded<Type extends (...a: any[]) => any>(proto: Object, key: string, descriptor: TypedPropertyDescriptor<Type>) {
+function bound<Type extends (...a: any[]) => any>(proto: Object, key: string, descriptor: TypedPropertyDescriptor<Type>) {
+  if (proto.constructor == Object) descriptor = proto; //BABEL Fix
+
   let value = descriptor.value;
   delete descriptor.writable;
   delete descriptor.value;

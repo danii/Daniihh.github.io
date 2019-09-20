@@ -1,0 +1,1 @@
+"use strict";function _defineProperty(a,b,c){return b in a?Object.defineProperty(a,b,{value:c,enumerable:!0,configurable:!0,writable:!0}):a[b]=c,a}_defineProperty(Blockly,"Blocks",void 0);
