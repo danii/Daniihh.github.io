@@ -1,4 +1,4 @@
-Block Builder V1.0.0
+Block Builder V1.0.1
 ====================
 A little site / project that allows you to make Blockly blocks, with Blockly blocks. The project is currently hosted using GitHub pages, at https://daniihh.github.io/.
 
