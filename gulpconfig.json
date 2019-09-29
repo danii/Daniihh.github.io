@@ -1,0 +1,32 @@
+{
+  "default": {
+    "source": "typescript/*.ts",
+    "actions": [
+      {
+        "action": "gulp-typescript",
+        "arguments": [
+          {
+            "target": "es6",
+            "lib": ["es2019", "dom"],
+            "jsx": "preserve",
+            "experimentalDecorators": true
+          }
+        ],
+        "destination": "javascript/"
+      },
+      {
+        "action": "gulp-babel",
+        "arguments": [
+          {
+            "presets": [
+              "@babel/preset-env",
+              ["minify", {"builtIns": true}]
+            ],
+            "comments": false
+          }
+        ],
+        "destination": "javascript-compressed/"
+      }
+    ]
+  }
+}

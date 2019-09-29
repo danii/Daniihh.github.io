@@ -5,6 +5,8 @@
   "main": "index.html",
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.6.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-typescript": "^5.0.1",
     "http-server": "^0.11.1",
     "typescript": "^3.5.3",
     "vue": "^2.6.10",
@@ -18,11 +20,12 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-typescript": "^7.6.0",
-    "babel-preset-minify": "^0.5.1"
+    "babel-preset-minify": "^0.5.1",
+    "gulp": "^4.0.2"
   },
   "scripts": {
     "start": "http-server",
-    "do": "node scripts/build-compressed.js ./../"
+    "do": "node scripts/gulpJsonCompressed.js run ./../"
   },
   "repository": {
     "type": "git",
