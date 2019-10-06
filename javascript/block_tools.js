@@ -21,15 +21,16 @@ var BlockTools;
       F      UUU  N   N  CCCC   T   IIIII  OOO  N   N SSSS
     */
     /**
-     * Wraps the given text with xml tags and returns it all as an <xml> element.
+     * Wraps the given text with xml tags and returns it all
+     * as an <xml> element.
      *
      * @param xml Text to convert to XML.
      * @returns XML Element.
      */
-    BlockTools.createXml = (xml) => Blockly.Xml.textToDom("<xml>" + xml + "</xml>");
+    BlockTools.createXml = (xml) => Blockly.Xml.textToDom(`<xml>${xml}</xml>`);
     /**
-     * Wraps the given text with xml tags and returns it all as a list of XML
-     * elements.
+     * Wraps the given text with xml tags and returns it all
+     * as a list of XML elements.
      *
      * @param xml Text to convert to XML.
      * @returns Array of XML elements.
@@ -38,8 +39,10 @@ var BlockTools;
     /**
      * Maps out a set of blocks using a mapper.
      *
-     * @param mapper The mapper containing instructions on how to map the blocks.
-     * @param block The block at the top of the group to start mapping from.
+     * @param mapper The mapper containing instructions on how
+     *  to map the blocks.
+     * @param block The block at the top of the group to start
+     *  mapping from.
      * @returns A map of the blocks specified by the mapper.
      */
     BlockTools.map = (() => {
@@ -68,7 +71,8 @@ var BlockTools;
                 if (typeof value == "function")
                     value = value.call(makeThis(block, mapScope, map));
                 if (typeof value != "string")
-                    throw new TypeError('Invalid return value in "' + key + '", expected string, got ' + Object.getType(value) + ".");
+                    throw new TypeError(`Invalid return value in "${key}", expected ` +
+                        `string, got ${Object.getType(value)}.`);
                 set(mapScope, key, BlockTools.getValue(block, value));
             }
         };
@@ -83,7 +87,9 @@ var BlockTools;
             //No mapScope means beginning of map process, start at root.
             mapScope = mapScope || map;
             //If $as is present, change scope to $as in current scope.
-            mapScope = blockMapper.$as ? mapScope = mapScope[blockMapper.$as] = mapScope[blockMapper.$as] || {} : mapScope;
+            mapScope = blockMapper.$as ?
+                mapScope = mapScope[blockMapper.$as] = mapScope[blockMapper.$as] || {} :
+                mapScope;
             let nextBlock = block.getNextBlock(); //Next Block
             let prevBlock = block.getPreviousBlock(); //Previous Block (Unused)
             let nextMap = blockMapper.$next; //Next Map Name
@@ -96,7 +102,8 @@ var BlockTools;
                 if (["$next", "$prev", "$as", "$runme"].includes(key))
                     continue;
                 if (["$lit_", "$literal_"].some((start) => key.startsWith(start))) {
-                    item = key.startsWith("$lit_") && typeof item == "function" ? item.call(makeThis(block, mapScope, map)) : Object.clone(item);
+                    item = key.startsWith("$lit_") && typeof item == "function" ?
+                        item.call(makeThis(block, mapScope, map)) : Object.clone(item);
                     mapScope[key.substr(key.indexOf("_") + 1)] = item;
                     continue;
                 }
@@ -108,7 +115,8 @@ var BlockTools;
             }
             if (nextMap && nextBlock) {
                 if (typeof nextMap == "function")
-                    nextMap = nextMap.call(makeThis(block, mapScope, map), nextBlock);
+                    nextMap =
+                        nextMap.call(makeThis(block, mapScope, map), nextBlock);
                 mapBlock(mapper, nextBlock, map, mapScope, mapper[nextMap]);
             }
             return map;
@@ -116,8 +124,8 @@ var BlockTools;
         return mapBlock;
     })();
     /**
-     * Includes common types for use with the map function and the MapperError
-     * class.
+     * Includes common types for use with the map function and
+     * the MapperError class.
      */
     let Map;
     (function (Map) {
@@ -136,7 +144,8 @@ var BlockTools;
                     let reducer = (p, c) => (typeof p == "string" ? p.length : p) + c.length + 1;
                     let len = segs.length == 0 ? 0 : segs.reduce(reducer);
                     len = typeof len == "string" ? len.length + 1 : len;
-                    super(`No ${type} with the name "${segment}".\n\t\t${path}\n\t\t${" ".repeat(len)}${"~".repeat(segment.length)}`);
+                    super(`No ${type} with the name "${segment}".\n\t\t${path}\n\t\t` +
+                        `${" ".repeat(len)}${"~".repeat(segment.length)}`);
                     this.path = path;
                     this.index = index;
                     this.type = type;
@@ -146,8 +155,9 @@ var BlockTools;
         Map.MapperError = MapperError;
     })(Map = BlockTools.Map || (BlockTools.Map = {}));
     /**
-     * It's like using .getInputTargetBlock and .getFieldValue to get a value of
-     * a field nested down a few inputs. But that's an object path now.
+     * It's like using .getInputTargetBlock and .getFieldValue
+     * to get a value of a field nested down a few inputs. But
+     * that's an object path now.
      *
      * @example
      *     block.getInputTargetBlock("colour").getFieldValue("r");
@@ -156,7 +166,8 @@ var BlockTools;
      *
      * @param block Block to start from.
      * @param string The path to the field from this block.
-     * @returns The value of the field, parsed into a proper type.
+     * @returns The value of the field, parsed into a proper
+     *  type.
      */
     BlockTools.getValue = (block, path) => {
         let parse = (item) => ({ "false": false, "true": true }[item.toLowerCase()] != undefined ?
@@ -169,17 +180,16 @@ var BlockTools;
         for (let index = 0; index < segments.length; index++) {
             field = field;
             let segment = segments[index];
-            if (field.getInput(segment) == null && index != segments.length - 1) {
+            if (field.getInput(segment) == null && index != segments.length - 1)
                 throw new Map.MapperError("input", index, path);
-            }
-            else if (field.getField(segment) == null && index == segments.length - 1) {
+            else if (field.getField(segment) == null && index == segments.length - 1)
                 throw new Map.MapperError("field", index, path);
-            }
-            field = index == segments.length - 1 ? field.getFieldValue(segment) : field.getInputTargetBlock(segment);
+            field = index == segments.length - 1 ?
+                field.getFieldValue(segment) : field.getInputTargetBlock(segment);
             if (field == null)
                 return undefined;
         }
-        return parse(field);
+        return parse(field.toString());
     };
     /*
        CCCC L      AAA   SSSS  SSSS EEEEE  SSSS
@@ -195,7 +205,7 @@ var BlockTools;
             this.blockType = blockType;
         }
         generate(workspace, generator) {
-            let blocks = workspace.getAllBlocks();
+            let blocks = workspace.getAllBlocks(true);
             if (typeof this.blockType == "string") {
                 blocks = blocks.filter((block) => block.type == this.blockType);
             }
@@ -234,7 +244,8 @@ var BlockTools;
                     code = generator(map, shared);
                 }
                 catch (error) {
-                    code = new CodeGenerator.GeneratorError("Compile process failed.", error);
+                    code =
+                        new CodeGenerator.GeneratorError("Compile process failed.", error);
                 }
                 if (code instanceof CodeGenerator.GeneratorError)
                     timer[id] = null;
@@ -330,34 +341,44 @@ var BlockTools;
     }
     BlockTools.Code = Code;
     /**
-     * A class that offers similar functionality to Blockly's variables,
-     * but as an array of values rather than a map of variables.
+     * A class that offers similar functionality to Blockly's
+     * variables, but as an array of values rather than a map
+     * of variables.
      */
     class Types {
         constructor() {
             this.table = {};
             /**
-             * A function that generates options for a dropdown menu in a Type block.
-             * This method was built with it being a value for Blockly.Dropdown's
-             * generator function rather than being invoked.
+             * A function that generates options for a dropdown menu
+             * in a Type block. This method was built with it being
+             * a value for Blockly.Dropdown's generator function
+             * rather than being invoked.
              *
              * @example //Using BlockTools.Builder
              *     new BlockTools.Builder.FieldDropdown(types.updateDropdown);
              * @example //Using Blockly
              *     new Blockly.FieldDropdown(values.updateDropdown);
              *
-             * @param dropdown The dropdown block the values are being generated for.
+             * @param dropdown The dropdown block the values are
+             *  being generated for.
              * @returns The new values to show.
              */
             this.updateDropdown = this.divert(function (dropdown) {
                 let data = Object.entries(this.table).map((a) => a.reverse());
-                let options = dropdown && dropdown.getValue() != "-1" ? [["Delete Type...", "-3"]] : [];
-                return [["Anything", "-1"], ...data, ["Create Type...", "-2"], ...options];
+                let options = dropdown && dropdown.getValue() != "-1" ?
+                    [["Delete Type...", "-3"]] : [];
+                return [
+                    ["Anything", "-1"],
+                    ...data,
+                    ["Create Type...", "-2"],
+                    ...options
+                ];
             });
             /**
-             * A function that validates options for a dropdown menu in a Type block.
-             * Typically just to add functionality to the Create & Delete type buttons.
-             * This method was built with it being a value for Blockly.Dropdown's
+             * A function that validates options for a dropdown menu
+             * in a Type block. Typically just to add functionality
+             * to the Create & Delete type buttons. This method was
+             * built with it being a value for Blockly.Dropdown's
              * generator function rather than being invoked.
              *
              * @example //Using BlockTools.Builder
@@ -365,7 +386,8 @@ var BlockTools;
              * @example //Using Blockly
              *     new Blockly.FieldDropdown(values.updateDropdown, types.validateDropdown);
              *
-             * @param dropdown The dropdown block the values are being generated for.
+             * @param dropdown The dropdown block the values are
+             *  being generated for.
              * @returns The new value to show or null.
              */
             this.validateDropdown = this.divert(function (dropdown, option) {
@@ -378,11 +400,11 @@ var BlockTools;
             });
         }
         /**
-         * Like the @bound decorator, but when you actually want the value that
-         * this was assigned too.
+         * Like the @bound decorator, but when you actually want
+         * the value that this was assigned too.
          *
-         * @param func Function to use this with, old value passed as first argument
-         *   followed by the rest.
+         * @param func Function to use this with, old value
+         *  passed as first argument followed by the rest.
          */
         divert(func) {
             let thisHere = this;
@@ -392,21 +414,23 @@ var BlockTools;
             };
         }
         /**
-         * Accompanied by the spread operator, used as a shortcut for specifying
-         * both updateDropdown and validateDropdown for FieldDropdown constructors.
+         * Accompanied by the spread operator, used as a
+         * shortcut for specifying both updateDropdown and
+         * validateDropdown for FieldDropdown constructors.
          *
          * @example //Using BlockTools.Builder
          *     new BlockTools.Builder.FieldDropdown(...types.getConstructArgs());
          * @example //Using Blockly
          *     new Blockly.FieldDropdown(...value.getConstructArgs());
          *
-         * @returns Both the .updateDropdown and .validateDropdown functions.
+         * @returns Both the .updateDropdown and
+         *  .validateDropdown functions.
          */
         getConstructArgs() {
             return [this.updateDropdown, this.validateDropdown];
         }
         buildToolbox() {
-            let obtainButton = (text, key) => BlockTools.obtainXml('<button text="' + text + '" callbackKey="' + key + '"/>');
+            let obtainButton = (text, key) => BlockTools.obtainXml(`<button text="${text}" callbackKey="${key}"/>`);
             let xmlStart = '<block type="builder_type"><field name="type">';
             let xmlEnd = "</field></block>";
             let list = [obtainButton("Create Type...", "createType")];
@@ -414,17 +438,16 @@ var BlockTools;
                 list.push(obtainButton("Delete Type...", "deleteType"));
             }
             list.push(BlockTools.obtainXml([xmlStart, "-1", xmlEnd].join("")));
-            for (let type in this.table) {
+            for (let type in this.table)
                 list.push(BlockTools.obtainXml([xmlStart, type, xmlEnd].join("")));
-            }
-            return list;
+            return list.flat();
         }
         createType(button) {
             let name = prompt("Enter the name of the type to create...");
             if ([null, ""].includes(name))
                 return;
             if (Object.values(this.table).includes(name))
-                return alert('A type already exists with the name "' + name + '".');
+                return alert(`A type already exists with the name "${name}".`);
             let position = Math.max(-1, ...Object.keys(this.table).map((int) => parseInt(int))) + 1;
             this.table[position] = name;
             if (button)
@@ -436,13 +459,14 @@ var BlockTools;
                 if (!Object.keys(this.table).includes(item))
                     return false;
                 if (!confirmm) {
-                    confirmm = confirm('Are you sure you want to delete the type "' + this.table[item] + '"?');
+                    confirmm = confirm(`Are you sure you want to delete the type ` +
+                        `"${this.table[item]}"?`);
                     if (!confirmm)
                         return false;
                 }
                 let [id] = Object.entries(this.table).find(([key]) => key == item);
                 delete this.table[id];
-                for (let block of argument.getAllBlocks()) {
+                for (let block of argument.getAllBlocks(true)) {
                     if (block.type != "builder_type")
                         continue;
                     if (block.getField("type").getValue() == id)
@@ -459,14 +483,15 @@ var BlockTools;
                 argument.getTargetWorkspace().getToolbox().refreshSelection();
                 return true;
             }
-            alert('No type exists with the name "' + item + '".');
+            alert(`No type exists with the name "${item}".`);
             return false;
         }
         /**
-         * Registers all the button callbacks and category callbacks required
-         * effectively use this class.
+         * Registers all the button callbacks and category
+         * callbacks required effectively use this class.
          *
-         * @param workspace Workspace to register everything too.
+         * @param workspace Workspace to register everything
+         *  too.
          */
         register(workspace) {
             workspace.registerToolboxCategoryCallback("TYPES", this.buildToolbox);
@@ -477,7 +502,8 @@ var BlockTools;
          * Returns the name of the type number.
          *
          * @param value Number of the type as a string.
-         * @returns The name of the type or null if no type with that number exists.
+         * @returns The name of the type or null if no type with
+         *  that number exists.
          */
         toType(value) {
             return value == "-1" ? null : this.table[value];
@@ -495,7 +521,8 @@ var BlockTools;
     BlockTools.Types = Types;
     class Builder {
         /**
-         * Creates a new block builder used to make Blockly blocks.
+         * Creates a new block builder used to make Blockly
+         * blocks.
          *
          * @param name Internal code name of this block.
          */
@@ -539,10 +566,11 @@ var BlockTools;
             return this;
         }
         /**
-         * Returns the newest input appended to this block.
-         * If no inputs exist yet, a DummyInput will be created.
+         * Returns the newest input appended to this block. If
+         * no inputs exist yet, a DummyInput will be created.
          *
-         * @returns The newest input, otherwise a new DummyInput.
+         * @returns The newest input, otherwise a new
+         *  DummyInput.
          */
         getLastInput() {
             if (this.inputs.length == 0)
@@ -555,8 +583,9 @@ var BlockTools;
          *
          * Description From {@link Builder.Input#appendField}
          *
-         * Appends raw text or a field with a name to this input.
-         * The name field is unnecessarry when appending text.
+         * Appends raw text or a field with a name to this
+         * input. The name field is unnecessarry when appending
+         * text.
          *
          * @param field Text / Field to add.
          * @param name Name of the field to add.
@@ -585,7 +614,8 @@ var BlockTools;
         }
         /**
          * Gets the newest input appended to this block and runs
-         * setCheck on it. The newest input must not be a DummyInput!
+         * setCheck on it. The newest input must not be a
+         * DummyInput!
          *
          * Description From {@link Builder.TypedInput#setCheck}
          *
@@ -599,7 +629,8 @@ var BlockTools;
          *     input.setCheck(['trait', 'smell', ...extras]);
          *     input.acceptingType //['trait', 'smell', 'taste']
          *
-         * @throws TypeError if the newest input was a DummyInput.
+         * @throws TypeError if the newest input was a
+         *  DummyInput.
          * @param type Type(s) or Array(s) of Type(s) to use.
          * @returns This, for chaining.
          */
@@ -660,7 +691,8 @@ var BlockTools;
                         [Builder.StatementInput.name]: "StatementInput",
                         [Builder.ValueInput.name]: "ValueInput"
                     }[builtInput.constructor.name];
-                    let typedInput = builtInput instanceof Builder.TypedInput ? builtInput : null;
+                    let typedInput = builtInput instanceof Builder.TypedInput ?
+                        builtInput : null;
                     let input = this["append" + name](typedInput && typedInput.name);
                     input.setAlign(builtInput.alignment);
                     if (typedInput)
@@ -699,8 +731,9 @@ var BlockTools;
                 this.alignment = -1;
             }
             /**
-             * Appends raw text or a field with a name to this input.
-             * The name field is unnecessarry when appending text.
+             * Appends raw text or a field with a name to this
+             * input. The name field is unnecessarry when
+             * appending text.
              *
              * @param field Text / Field to add.
              * @param name Name of the field to add.
@@ -722,7 +755,8 @@ var BlockTools;
                     "CENTRE": 0,
                     "RIGHT": 1,
                 };
-                this.alignment = convert[alignment] != null ? convert[alignment] : alignment;
+                this.alignment = convert[alignment] != null ?
+                    convert[alignment] : alignment;
             }
         }
         Builder.Input = Input;
@@ -742,7 +776,8 @@ var BlockTools;
              *     input.setCheck(['trait', 'smell', ...extras]);
              *     input.acceptingType //['trait', 'smell', 'taste']
              *
-             * @throws TypeError if the newest input was a DummyInput.
+             * @throws TypeError if the newest input was a
+             *  DummyInput.
              * @param type Type(s) or Array(s) of Type(s) to use.
              */
             setCheck(...type) {
@@ -778,7 +813,8 @@ var BlockTools;
         class FieldDropdown extends Builder.Field {
             constructor(options, validator) {
                 if (!(options instanceof Array) && typeof options != "function") {
-                    options = Object.entries(options).map(([k, v]) => [v, k]);
+                    options = Object.entries(options)
+                        .map(([k, v]) => [v, k]);
                 }
                 else if (typeof options == "function") {
                     let generator = options;

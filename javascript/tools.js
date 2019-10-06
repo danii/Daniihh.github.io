@@ -217,12 +217,10 @@ class AdvancedError extends Error {
         let hidden = (common) => {
             return {
                 get() {
-                    console.log(new Error().stack);
                     if (AdvancedError.parseStack(new Error().stack).length > 1) {
                         return common;
                     }
                     else {
-                        console.debug("Error thrown: ", this);
                         return this.displayedStack;
                     }
                 }

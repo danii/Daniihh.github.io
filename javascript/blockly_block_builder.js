@@ -262,13 +262,13 @@ class BlocklyBlockBuilder {
         let name = { "true": "add", "false": "remove" }[(errors.length > 0).toString()];
         hud.classList[name]("shown");
         if (errors.length > 0)
-            console.log(errors.toString());
+            console.debug(`New Error On Stack:\n${errors.toString()}`);
         let content = errors.map((err) => err.name + (err.message ? `: ${err.message}` : ""));
         if (errors.length > 0)
             info.innerHTML = content.join("<br/>");
     }
     static updatePreviewWorkspace(code) {
-        let blocks = this.blocklyPreview.getAllBlocks();
+        let blocks = this.blocklyPreview.getAllBlocks(true);
         let deleted = Object.keys(Blockly.Blocks).filter((key) => key.startsWith("built_"));
         deleted.forEach((name) => delete Blockly.Blocks[name]);
         eval(code);
@@ -347,19 +347,23 @@ class BlocklyBlockBuilder {
         let hov = document.getElementById("logos");
         let { left, right, top, bottom } = hov.getBoundingClientRect();
         let condition = left < mouseX && mouseX < right && top < mouseY && mouseY < bottom;
+        let intersecting = (rect1, rect2) => !(rect2.x > rect1.x + rect1.w || rect2.x + rect2.w < rect1.x
+            || rect2.y > rect1.y + rect1.h || rect2.h < rect1.y);
+        let translate = (rect, amount) => ({ "x": rect.x + amount.x, "y": rect.y + amount.y,
+            "w": rect.w + amount.x, "h": rect.h + amount.y });
         let workspace = BlocklyBlockBuilder.blocklyPreview;
         let workspaceBounding = workspace.getParentSvg().getBoundingClientRect();
         let intersectionBounding = document.getElementById("logos").getBoundingClientRect();
-        let intersection = new goog.math.Rect(intersectionBounding.left, intersectionBounding.top, intersectionBounding.width, intersectionBounding.height);
-        let workspaceScrollOffset = new goog.math.Coordinate(workspace.scrollX, workspace.scrollY);
-        let workspacePositionOffset = new goog.math.Coordinate(workspaceBounding.left, workspaceBounding.top);
-        let blocks = workspace.getAllBlocks();
+        let intersection = { "x": intersectionBounding.left, "y": intersectionBounding.top, "w": intersectionBounding.width, "h": intersectionBounding.height };
+        let workspaceScrollOffset = { "x": workspace.scrollX, "y": workspace.scrollY };
+        let workspacePositionOffset = { "x": workspaceBounding.left, "y": workspaceBounding.top };
+        let blocks = workspace.getAllBlocks(true);
         condition = condition || blocks.some((block) => {
-            let { topLeft: { y: top, x: left }, bottomRight: { y: bottom, x: right } } = block.getBoundingRectangle();
-            let bounding = new goog.math.Rect(left * 1.5, top * 1.5, (right - left) * 1.5, (bottom - top) * 1.5);
-            bounding.translate(workspaceScrollOffset);
-            bounding.translate(workspacePositionOffset);
-            return intersection.intersects(bounding);
+            let { top, left, bottom, right } = block.getBoundingRectangle();
+            let bounding = { "x": left * 1.5, "y": top * 1.5, "w": (right - left) * 1.5, "h": (bottom - top) * 1.5 };
+            bounding = translate(bounding, workspaceScrollOffset);
+            bounding = translate(bounding, workspacePositionOffset);
+            return intersecting(intersection, bounding);
         });
         if (condition)
             hov.classList.add("hide");

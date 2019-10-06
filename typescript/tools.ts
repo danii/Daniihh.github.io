@@ -554,11 +554,9 @@ class AdvancedError extends Error {
     let hidden = <C>(common: C) => {
       return {
         get(this: AdvancedError): string | C {
-          console.log(new Error().stack);
           if (AdvancedError.parseStack(new Error().stack).length > 1) {
             return common;
           } else {
-            console.debug("Error thrown: ", this);
             return this.displayedStack;
           }
         }
